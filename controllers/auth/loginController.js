@@ -32,12 +32,11 @@ const loginController = {
 
       // Token
       access_token = JwtService.sign({
-        id: user._id,
+        _id: user._id,
         role: user.role,
       });
 
       return res.json({ access_token });
-      
     } catch (err) {
       return next(err);
     }
