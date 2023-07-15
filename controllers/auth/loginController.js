@@ -3,7 +3,8 @@ const bcrypt = require("bcrypt");
 const JwtService = require("../../services/JwtService");
 
 const CustomErrorHandler = require("../../services/CustomErrorHandler");
-const User = require("../../models");
+const { User, RefreshToken } = require("../../models");
+const { JWT_REFRESH_TOKEN } = require("../../config");
 
 const loginController = {
   async login(req, res, next) {
@@ -31,12 +32,24 @@ const loginController = {
       }
 
       // Token
-      access_token = JwtService.sign({
+      const access_token = JwtService.sign({
         _id: user._id,
         role: user.role,
       });
 
-      return res.json({ access_token });
+      const refresh_token = JwtService.sign(
+        {
+          id: user._id,
+          role: user.role,
+        },
+        "1y",
+        JWT_REFRESH_TOKEN
+      );
+      // Database whitelist
+      await RefreshToken.create({
+        token: refresh_token,
+      });
+      res.json({ access_token, refresh_token });
     } catch (err) {
       return next(err);
     }

@@ -1,4 +1,4 @@
-const User = require("../../models");
+const { User } = require("../../models");
 const CustomErrorHandler = require("../../services/CustomErrorHandler");
 
 const userController = {

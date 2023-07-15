@@ -1,12 +1,12 @@
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET_KEY } = require("../config");
+const { JWT_ACCESS_TOKEN } = require("../config");
 
 class JwtService {
-  static sign(payload, expiry = "120s", secret = JWT_SECRET_KEY) {
+  static sign(payload, expiry = "60s", secret = JWT_ACCESS_TOKEN) {
     return jwt.sign(payload, secret, { expiresIn: expiry });
   }
 
-  static verify(token, secret = JWT_SECRET_KEY) {
+  static verify(token, secret = JWT_ACCESS_TOKEN) {
     console.log("jwtservice - token", token);
     console.log("jwt.verify(token, secret)", jwt.verify(token, secret));
     return jwt.verify(token, secret);
