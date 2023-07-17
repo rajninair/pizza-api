@@ -6,7 +6,7 @@ const CustomErrorHandler = require("../services/CustomErrorHandler");
 const errorHandler = (err, req, res, next) => {
   let statusCode = 500;
   let data = {
-    message: "Internal Server Error",
+    message: "Internal Server Error / unAuthorized",
     ...(DEBUG_MODE === "true" && { originalError: err.message }),
   };
 
