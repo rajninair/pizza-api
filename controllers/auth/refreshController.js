@@ -2,12 +2,11 @@ const Joi = require("joi");
 const { User, RefreshToken } = require("../../models");
 const CustomErrorHandler = require("../../services/CustomErrorHandler");
 const JwtService = require("../../services/JwtService");
-const { JWT_REFRESH_TOKEN } = require("../../config");
+const { JWT_REFRESH_SECRET } = require("../../config");
 
 const refreshController = {
   async refresh(req, res, next) {
     // Validate the request
-
     const refreshSchema = Joi.object({
       refresh_token: Joi.string().required(),
     });
@@ -18,25 +17,26 @@ const refreshController = {
     }
 
     // Check in database
-    let refreshtoken;
+    let refreshtokenFromDb;
     let userId;
 
     try {
-      refreshtoken = await RefreshToken.findOne({
+      refreshtokenFromDb = await RefreshToken.findOne({
         token: req.body.refresh_token,
       });
 
-      if (!refreshtoken) {
+      if (!refreshtokenFromDb) {
         // return next(CustomErrorHandler.unAuthorized("Invalid refresh token"));
         return next(new Err("Invalid refresh token"));
       }
       try {
         const { _id } = await JwtService.verify(
-          refreshtoken.token,
-          JWT_REFRESH_TOKEN
+          refreshtokenFromDb.token,
+          JWT_REFRESH_SECRET
         );
         userId = _id;
-        const user = User.findOne({ _id: userId });
+
+        const user = await User.findOne({ _id: userId });
         if (!user) {
           return res.json({ error: "User not found.." });
         }
@@ -45,14 +45,13 @@ const refreshController = {
           _id: user._id,
           role: user.role,
         });
-
         const refresh_token = JwtService.sign(
           {
-            id: user._id,
+            _id: user._id,
             role: user.role,
           },
           "1y",
-          JWT_REFRESH_TOKEN
+          JWT_REFRESH_SECRET
         );
         // Database whitelist
         await RefreshToken.create({
@@ -63,7 +62,7 @@ const refreshController = {
         return next("Invalid refresh token 1");
       }
     } catch (err) {
-      return next("Invalid refresh token 2");
+      return next("Refresh token not found or db or server error -  2");
     }
   },
 };

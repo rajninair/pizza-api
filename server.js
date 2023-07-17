@@ -26,6 +26,7 @@ mongoose
 
 // Middleware
 app.use(express.json());
+app.use(express.urlencoded());
 
 // Middleware - Error handlers
 app.use(errorHandler);

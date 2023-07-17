@@ -3,7 +3,7 @@ const { User, RefreshToken } = require("../../models");
 const bcrypt = require("bcrypt");
 const JwtService = require("../../services/JwtService");
 const CustomErrorHandler = require("../../services/CustomErrorHandler");
-const { JWT_REFRESH_TOKEN } = require("../../config");
+const { JWT_REFRESH_SECRET } = require("../../config");
 
 const registerController = {
   async register(req, res, next) {
@@ -28,7 +28,6 @@ const registerController = {
       if (exist) {
         // return next(CustomErrorHandler.alreadyExists("Email already exists"));
         // todo - not working
-        console.log("Email already exists");
         return res.json({ error: "Email already exists" });
       }
     } catch (err) {
@@ -48,19 +47,18 @@ const registerController = {
 
     try {
       const result = await user.save();
-      console.log(result);
       // Token
       access_token = JwtService.sign({
-        id: result._id,
+        _id: result._id,
         role: result.role,
       });
       refresh_token = JwtService.sign(
         {
-          id: result._id,
+          _id: result._id,
           role: result.role,
         },
         "1y",
-        JWT_REFRESH_TOKEN
+        JWT_REFRESH_SECRET
       );
 
       // Database whitelist
