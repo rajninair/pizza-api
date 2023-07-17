@@ -145,5 +145,21 @@ const productController = {
     });
     res.json(document);
   },
+  async index(req, res, next) {
+    let documents;
+    // For Pagination - mongoose-pagination
+    // -updatedAt : use '-' for fields to be neglected
+    // -1 : descending order
+    try {
+      documents = await Product.find()
+        .select("-__v -updatedAt")
+        .sort({ _id: -1 });
+      // res.json(documents);
+    } catch (err) {
+      // return next(CustomErrorHandler.serverError())
+      return next(err);
+    }
+    return res.json(documents);
+  },
 };
 module.exports = productController;

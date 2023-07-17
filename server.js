@@ -26,11 +26,13 @@ mongoose
 
 // Global variables
 global.appRoot = path.resolve(__dirname);
+
 // Middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 app.use("/api", routes);
+app.use("/uploads", express.static("uploads"));
 
 // Middleware - Error handlers
 app.use(errorHandler);

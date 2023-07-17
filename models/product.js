@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { APP_URL } = require("../config");
 const productSchema = new mongoose.Schema(
   {
     name: {
@@ -20,10 +21,15 @@ const productSchema = new mongoose.Schema(
     image: {
       type: String,
       required: true,
+      get: (image) => {
+        // image : uploads/544545-4455.png
+        return `${APP_URL}/${image}`;
+      },
     },
   },
   {
     timestamps: true,
+    toJSON: { getters: true },
   }
 );
 
