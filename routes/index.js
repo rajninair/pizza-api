@@ -17,7 +17,9 @@ routes.post("/logout", auth, loginController.logout);
 routes.get("/me", auth, userController.me);
 
 // Products
-routes.get("/products",  productController.index);
+routes.get("/products", productController.index);
+routes.get("/products/:id", productController.show);
+
 routes.post("/products", [auth, admin], productController.store);
 routes.put("/products/:id", [auth, admin], productController.update);
 routes.delete("/products/:id", [auth, admin], productController.destroy);
