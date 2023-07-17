@@ -19,5 +19,6 @@ routes.get("/me", auth, userController.me);
 // Products
 routes.post("/products", [auth, admin], productController.store);
 routes.put("/products/:id", [auth, admin], productController.update);
+routes.delete("/products/:id", [auth, admin], productController.destroy);
 
 module.exports = routes;
