@@ -5,6 +5,7 @@ const path = require("path");
 
 const CustomErrorHandler = require("../services/CustomErrorHandler");
 const Joi = require("joi");
+const productSchema = require("../validators/productValidator");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -39,13 +40,6 @@ const productController = {
       const filePath = req.file.path;
       console.log("filePath", filePath);
       // Validatation
-
-      const productSchema = Joi.object({
-        name: Joi.string().required(),
-        description: Joi.string().required(),
-        price: Joi.number().required(),
-        size: Joi.string().required(),
-      });
       const { error } = productSchema.validate(req.body);
 
       if (error) {
@@ -81,6 +75,58 @@ const productController = {
       res.status(201).json(document);
     });
   },
-  async update(req, res, next) {},
+  async update(req, res, next) {
+    handleMultipartData(req, res, async (err) => {
+      if (err) {
+        return res.json({ error: "Server error..." });
+      }
+      let filePath;
+      if (req.file) {
+        filePath = req.file.path;
+        console.log("filePath", filePath);
+      }
+      // Validatation
+      const { error } = productSchema.validate(req.body);
+
+      if (error) {
+        if (req.file) {
+          // Delete the uploaded image if validation fails
+          fs.unlink(`${appRoot}/${filePath}`, (err) => {
+            // return next(CustomErrorHandler.serverError(err.message))
+            if (err) {
+              return next(err.message);
+            }
+          });
+        }
+
+        return next(error);
+      }
+
+      // if (filePath.mimetype !== "image/png") {
+      //   console.log("Invalid image ...");
+      // }
+
+      const { name, description, price, size } = req.body;
+      let document;
+
+      try {
+        document = await Product.findOneAndUpdate(
+          { _id: req.params.id },
+          {
+            name,
+            description,
+            price,
+            size,
+            ...(req.file && { image: filePath }),
+          },
+          { new: true }
+        );
+      } catch (err) {
+        return next(err);
+      }
+
+      res.status(201).json(document);
+    });
+  },
 };
 module.exports = productController;
